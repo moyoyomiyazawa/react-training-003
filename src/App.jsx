@@ -2,14 +2,22 @@ import React, { useState } from 'react';
 import './styles/output.css';
 
 export const App = () => {
+  const [todoText, setTodoText] = useState('');
   const [incompleteTodos, setIncompleteTodos] = useState([
     'プログラミング',
     '音楽',
   ]);
   const [completeTodos, setCompleteTodos] = useState([
     '確定申告',
-    'noahプロジェクトのデモ制作',
+    '○○プロジェクトのデモ制作',
   ]);
+
+  const handleTodoText = (todoText) => {
+    if (todoText.length === 0) return alert('文字を入力してください');
+    setIncompleteTodos([...incompleteTodos, todoText]);
+    setTodoText('');
+  };
+
   return (
     <>
       <div className='container mx-auto my-10 max-w-2xl'>
@@ -19,8 +27,18 @@ export const App = () => {
             className='rounded-xl py-1 px-2 outline-none border'
             type='text'
             placeholder='TODOを入力'
+            value={todoText}
+            onChange={(event) => setTodoText(event.target.value)}
+            onKeyDown={(event) => {
+              // 変換のEnterはスルーする
+              if (event.nativeEvent.isComposing) return;
+              if (event.key === 'Enter') return handleTodoText(todoText);
+            }}
           />
-          <button className='rounded-xl border py-1 px-4 bg-gray-100 hover:bg-white'>
+          <button
+            className='rounded-xl border py-1 px-4 bg-gray-100 hover:bg-white'
+            onClick={() => handleTodoText(todoText)}
+          >
             追加
           </button>
         </div>
@@ -38,10 +56,31 @@ export const App = () => {
                     <span className='mr-2'>{todo}</span>
                   </div>
                   <div className='text-right space-x-2'>
-                    <button className='rounded-xl border py-0 px-4 bg-gray-100 hover:bg-white'>
+                    <button
+                      className='rounded-xl border py-0 px-4 bg-gray-100 hover:bg-white'
+                      onClick={() => {
+                        // 完了リストに該当項目を追加する
+                        setCompleteTodos((prevCompleteTodos) => [
+                          ...prevCompleteTodos,
+                          incompleteTodos[index],
+                        ]);
+                        // 未完了リストから該当項目を削除する
+                        setIncompleteTodos((prevIncompleteTodos) =>
+                          prevIncompleteTodos.filter((_, i) => i !== index)
+                        );
+                      }}
+                    >
                       完了
                     </button>
-                    <button className='rounded-xl border py-0 px-4 bg-gray-100 hover:bg-white'>
+                    <button
+                      className='rounded-xl border py-0 px-4 bg-gray-100 hover:bg-white'
+                      onClick={() => {
+                        // 現在の項目のindexと一致しないものだけをフィルタリングした新しい配列を生成（結果として指定した要素を削除）
+                        setIncompleteTodos((prevIncompleteTodos) =>
+                          prevIncompleteTodos.filter((_, i) => i !== index)
+                        );
+                      }}
+                    >
                       削除
                     </button>
                   </div>
@@ -64,7 +103,20 @@ export const App = () => {
                     <span className='mr-2'>{todo}</span>
                   </div>
                   <div className='text-right'>
-                    <button className='rounded-xl border py-0 px-4 bg-gray-100 hover:bg-white'>
+                    <button
+                      className='rounded-xl border py-0 px-4 bg-gray-100 hover:bg-white'
+                      onClick={() => {
+                        // 未完了リストに該当項目を追加する
+                        setIncompleteTodos((prevIncompleteTodos) => [
+                          ...prevIncompleteTodos,
+                          completeTodos[index],
+                        ]);
+                        // 完了リストから該当項目を削除する
+                        setCompleteTodos((prevCompleteTodos) =>
+                          prevCompleteTodos.filter((_, i) => i !== index)
+                        );
+                      }}
+                    >
                       戻す
                     </button>
                   </div>
